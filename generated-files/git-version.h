@@ -1,0 +1,1 @@
+#define RSYNC_GITVER "v3.3.0-12-g5510255f"

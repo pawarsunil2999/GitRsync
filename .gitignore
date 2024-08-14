@@ -58,3 +58,6 @@ aclocal.m4
 /auto-build-save
 .deps
 /*.exe
+source/
+destination/
+14_aug_2024.c
