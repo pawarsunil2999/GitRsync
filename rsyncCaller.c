@@ -14,6 +14,7 @@
 typedef struct {
     char fullpath[MAX_PATH_LENGTH];
     const char *destination;
+    int itr;
 } thread_data_t;
 
 int count_subdirectories(const char *path, char subdirs[MAX_SUBDIRS][MAX_PATH_LENGTH]) {
@@ -39,8 +40,15 @@ int count_subdirectories(const char *path, char subdirs[MAX_SUBDIRS][MAX_PATH_LE
             continue;
         }
 
+        if( count == 0 ) {
+                snprintf(subdirs[count], MAX_PATH_LENGTH, "%s", path);
+                printf("\nCurrent dir : %s \tCount : %d\n", path, count);
+                count++;
+        }
+
         if (S_ISDIR(statbuf.st_mode)) {
             snprintf(subdirs[count], MAX_PATH_LENGTH, "%s", fullpath);
+            printf("\nCurrent dir : %s \tCount : %d\n", fullpath, count);
             count++;
         }
     }
@@ -54,7 +62,7 @@ void* rsync_thread(void* arg) {
     char command[COMMAND_LENGTH];
 
     // Make sure COMMAND_LENGTH is large enough
-    int required_length = snprintf(NULL, 0, "rsync -avzP %s %s", data->fullpath, data->destination) + 1;
+    int required_length = snprintf(NULL, 0, "./sunilRsync -avzP %s %s", data->fullpath, data->destination) + 1;
     if (required_length > sizeof(command)) {
         fprintf(stderr, "Error: Command length exceeds buffer size.\n");
         free(data);
@@ -62,11 +70,25 @@ void* rsync_thread(void* arg) {
     }
 
     // Construct the command
-    int written = snprintf(command, sizeof(command), "rsync -avzP %s %s", data->fullpath, data->destination);
-    if (written < 0 || written >= sizeof(command)) {
-        fprintf(stderr, "Error: snprintf failed or output truncated.\n");
-        free(data);
-        return NULL;
+    if( data->itr == 0 ) {
+        //rsync -avzP  /home/intern9/Desktop/testing/source/ /home/intern9/Desktop/testing/destination/
+        int written = snprintf(command, sizeof(command), "./sunilRsync -avzP --files-from=Sunil.txt %s %s", data->fullpath, data->destination);
+        if (written < 0 || written >= sizeof(command)) {
+            fprintf(stderr, "Error: snprintf failed or output truncated.\n");
+            free(data);
+            return NULL;
+        }
+
+    }
+    else {
+        
+        int written = snprintf(command, sizeof(command), "./sunilRsync -avzP %s %s", data->fullpath, data->destination);
+        if (written < 0 || written >= sizeof(command)) {
+            fprintf(stderr, "Error: snprintf failed or output truncated.\n");
+            free(data);
+            return NULL;
+        }
+
     }
 
     int result = system(command);
@@ -95,6 +117,13 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     printf("\nNumber of subdirectories in %s: %d\n\n", source, subdir_count);
+    
+    /* code to print the paths
+    for (int i = 0; i < subdir_count; i++) {
+        // Print each path
+        printf("Subdirectory %d: %s\n", i, subdirs[i]);
+    }
+    */
 
     pthread_t threads[subdir_count];
     int ret;
@@ -105,8 +134,10 @@ int main(int argc, char* argv[]) {
             perror("malloc");
             return 1;
         }
+        
         snprintf(data->fullpath, MAX_PATH_LENGTH, "%s", subdirs[i]);
         data->destination = destination;
+        data->itr = i;
 
         ret = pthread_create(&threads[i], NULL, rsync_thread, (void*)data);
         if (ret) {

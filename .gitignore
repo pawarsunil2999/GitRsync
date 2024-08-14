@@ -61,3 +61,4 @@ aclocal.m4
 source/
 destination/
 14_aug_2024.c
+*.csv
