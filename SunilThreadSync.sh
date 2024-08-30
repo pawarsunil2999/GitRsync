@@ -19,7 +19,7 @@ extract_size() {
 }
 
 # File to append the results
-csv_file="ThreadSync_results.csv"
+csv_file="Incremental_data_5_gb.csv"
 
 # Check if the CSV file exists, if not create it and add headers
 if [ ! -f "$csv_file" ]; then

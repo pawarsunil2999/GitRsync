@@ -1,21 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <string.h>
-#include <pthread.h>
-
-#define MAX_PATH_LENGTH 2048
-#define COMMAND_LENGTH 2048
-#define MAX_SUBDIRS 1024
-
-typedef struct {
-    char fullpath[MAX_PATH_LENGTH];
-    const char *destination;
-    int itr;
-} thread_data_t;
+#include "dependancies.h"
 
 int count_subdirectories(const char *path, char subdirs[MAX_SUBDIRS][MAX_PATH_LENGTH]) {
     struct dirent *entry;
@@ -28,6 +11,13 @@ int count_subdirectories(const char *path, char subdirs[MAX_SUBDIRS][MAX_PATH_LE
         return -1;
     }
 
+    //file name store karne ke liye file handling
+    FILE *output_file = fopen("Sunil.txt", "w");
+    if (output_file == NULL) {
+        perror("fopen");
+        return -1;
+    }
+
     while ((entry = readdir(dp)) != NULL) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
@@ -36,21 +26,26 @@ int count_subdirectories(const char *path, char subdirs[MAX_SUBDIRS][MAX_PATH_LE
         snprintf(fullpath, sizeof(fullpath), "%s/%s", path, entry->d_name);
 
         if (stat(fullpath, &statbuf) == -1) {
-            perror("stat");
+            // perror("stat");
             continue;
         }
 
-        if( count == 0 ) {
-                snprintf(subdirs[count], MAX_PATH_LENGTH, "%s", path);
-                printf("\nCurrent dir : %s \tCount : %d\n", path, count);
-                count++;
+        if( count ==0 ) {
+            snprintf(subdirs[count], MAX_PATH_LENGTH, "%s", path);
+            printf("Subdirectory %d: %s\n", count, fullpath);
+            count++;
         }
 
         if (S_ISDIR(statbuf.st_mode)) {
             snprintf(subdirs[count], MAX_PATH_LENGTH, "%s", fullpath);
-            printf("\nCurrent dir : %s \tCount : %d\n", fullpath, count);
+            printf("Subdirectory %d: %s\n", count, fullpath);
             count++;
+        } else {
+            // Write only the file name to Sunil.txt
+            fprintf(output_file, "%s\n", entry->d_name);
+            printf("File name written: %s\n", entry->d_name);
         }
+
     }
 
     closedir(dp);
@@ -61,44 +56,78 @@ void* rsync_thread(void* arg) {
     thread_data_t *data = (thread_data_t*)arg;
     char command[COMMAND_LENGTH];
 
-    // Make sure COMMAND_LENGTH is large enough
-    int required_length = snprintf(NULL, 0, "./sunilRsync -avzP %s %s", data->fullpath, data->destination) + 1;
-    if (required_length > sizeof(command)) {
-        fprintf(stderr, "Error: Command length exceeds buffer size.\n");
+    // Build command for rsync
+    int written;
+    if (data->itr == 0) {
+        written = snprintf(command, sizeof(command), "./sunilRsync -avzP --include-from=Sunil.txt %s %s", data->fullpath, data->destination);
+    } else {
+        written = snprintf(command, sizeof(command), "./sunilRsync -avzP %s %s", data->fullpath, data->destination);
+    }
+
+    if (written < 0 || written >= sizeof(command)) {
+        fprintf(stderr, "Error: snprintf failed or command length exceeds buffer size.\n");
         free(data);
         return NULL;
     }
 
-    // Construct the command
-    if( data->itr == 0 ) {
-        //rsync -avzP  /home/intern9/Desktop/testing/source/ /home/intern9/Desktop/testing/destination/
-        int written = snprintf(command, sizeof(command), "./sunilRsync -avzP --files-from=Sunil.txt %s %s", data->fullpath, data->destination);
-        if (written < 0 || written >= sizeof(command)) {
-            fprintf(stderr, "Error: snprintf failed or output truncated.\n");
-            free(data);
-            return NULL;
-        }
+    // Print command for debugging
+    printf("Executing command: %s\n", command);
 
-    }
-    else {
-        
-        int written = snprintf(command, sizeof(command), "./sunilRsync -avzP %s %s", data->fullpath, data->destination);
-        if (written < 0 || written >= sizeof(command)) {
-            fprintf(stderr, "Error: snprintf failed or output truncated.\n");
-            free(data);
-            return NULL;
-        }
-
-    }
-
+    // Execute command and capture output for debugging
     int result = system(command);
-
-    if (result == -1) 
+    if (result == -1) {
         perror("system");
+    } else {
+        printf("Command executed with result code: %d\n", result);
+    }
 
     free(data);
     return NULL;
 }
+
+// void* rsync_thread(void* arg) {
+//     thread_data_t *data = (thread_data_t*)arg;
+//     char command[COMMAND_LENGTH];
+
+//     //COMMAND_LENGTH chi size check 
+//     int required_length = snprintf(NULL, 0, "./sunilRsync -avzP %s %s", data->fullpath, data->destination) + 1;
+//     if (required_length > sizeof(command)) {
+//         fprintf(stderr, "Error: Command length exceeds buffer size.\n");
+//         free(data);
+//         return NULL;
+//     }
+
+//     // command construction
+//     if( data->itr == 0 ) {
+//         // printf("\nfiles from call \t Src : %s | Dest : %s ", data->fullpath, data->destination);
+//         int written = snprintf(command, sizeof(command), "./sunilRsync -avzP --files-from=Sunil.txt %s %s", data->fullpath, data->destination);
+//         if (written < 0 || written >= sizeof(command)) {
+//             fprintf(stderr, "Error: snprintf failed or output truncated.\n");
+//             free(data);
+//             return NULL;
+//         }
+
+//     }
+//     else {
+//         // printf("\nnormal call from call");
+//         int written = snprintf(command, sizeof(command), "./sunilRsync -avzP %s %s", data->fullpath, data->destination);
+//         if (written < 0 || written >= sizeof(command)) {
+//             fprintf(stderr, "Error: snprintf failed or output truncated.\n");
+//             free(data);
+//             return NULL;
+//         }
+
+//     }
+
+//     printf("\n\nSystem : %s", command);
+//     int result = system(command);
+
+//     if (result == -1) 
+//         perror("system");
+
+//     free(data);
+//     return NULL;
+// }
 
 
 int main(int argc, char* argv[]) {
@@ -116,14 +145,14 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Error counting subdirectories in %s\n", source);
         return 1;
     }
-    printf("\nNumber of subdirectories in %s: %d\n\n", source, subdir_count);
+    printf("\nNumber of subdirectories in %s: %d\n\n", source, subdir_count-1);
     
-    /* code to print the paths
+    //  code to print the paths
     for (int i = 0; i < subdir_count; i++) {
         // Print each path
         printf("Subdirectory %d: %s\n", i, subdirs[i]);
     }
-    */
+
 
     pthread_t threads[subdir_count];
     int ret;
@@ -151,6 +180,6 @@ int main(int argc, char* argv[]) {
         pthread_join(threads[i], NULL);
     }
 
-    printf("All threads finished executing.\n");
+    printf("\nAll threads finished executing.\n");
     return 0;
 }
