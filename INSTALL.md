@@ -97,7 +97,8 @@ like.
     buster-backports to update zstd from 1.3 to 1.4):
 
     >     sudo apt install -y gcc g++ gawk autoconf automake python3-cmarkgfm
-    >     sudo apt install -y acl libacl1-dev
+    >     sudo apt install -ysudo apt autoremove -y
+ acl libacl1-dev
     >     sudo apt install -y attr libattr1-dev
     >     sudo apt install -y libxxhash-dev
     >     sudo apt install -y libzstd-dev

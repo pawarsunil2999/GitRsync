@@ -25,7 +25,7 @@
 #include <sys/acl.h>
 #endif
 #ifdef HAVE_ACL_LIBACL_H
-#include <acl/libacl.h>
+#include "./libacl.h"
 #endif
 
 #define SMB_MALLOC(cnt) new_array(char, cnt)

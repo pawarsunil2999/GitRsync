@@ -28,14 +28,14 @@ fi
 
 # Measure the time and data size for the original rsync command
 start_time=$(date +%s)
-original_output=$(rsync -avzP /home/intern9/Desktop/testing/source/ /home/intern9/Desktop/testing/destination/ 2>&1)
+original_output=$(rsync -avzP /home/ubuntu/Documents/Sunil/SOURCE/ ashish@192.168.220.135:/home/ashish/Documents/Sunil/Destination/ 2>&1)
 end_time=$(date +%s)
 original_duration=$((end_time - start_time))
 original_size=$(extract_size "$original_output")
 
 # Measure the time and data size for the custom rsync command
 start_time=$(date +%s)
-custom_output=$(./caller /home/intern9/Desktop/testing/source/ /home/intern9/Desktop/testing/destination1/ 2>&1)
+custom_output=$(./caller /home/ubuntu/Documents/Sunil/SOURCE/ ashish@192.168.220.135:/home/ashish/Documents/Sunil/Destination1/ 2>&1)
 end_time=$(date +%s)
 custom_duration=$((end_time - start_time))
 custom_size=$(extract_size "$custom_output")
@@ -61,6 +61,6 @@ timestamp=$(date +"%Y-%m-%d %H:%M:%S")
 echo "$timestamp,$original_duration,$custom_duration,$time_difference" >> "$csv_file"
 
 # Remove transferred data at both destinations
-rm -rf /home/intern9/Desktop/testing/destination/*
-rm -rf /home/intern9/Desktop/testing/destination1/*
+rm -rf ashish@192.168.220.135:/home/ashish/Documents/Sunil/Destination/*
+rm -rf ashish@192.168.220.135:/home/ashish/Documents/Sunil/Destination1/*
 

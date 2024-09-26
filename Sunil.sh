@@ -35,7 +35,7 @@ original_size=$(extract_size "$original_output")
 
 # Measure the time and data size for the custom rsync command
 start_time=$(date +%s)
-custom_output=$(./sunilRsync -avzP /home/intern9/Desktop/testing/source/ /home/intern9/Desktop/testing/destination1/ 2>&1)
+custom_output=$(./transferData -avzP /home/intern9/Desktop/testing/source/ /home/intern9/Desktop/testing/destination1/ 2>&1)
 end_time=$(date +%s)
 custom_duration=$((end_time - start_time))
 custom_size=$(extract_size "$custom_output")

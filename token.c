@@ -23,10 +23,10 @@
 #include "itypes.h"
 #include <zlib.h>
 #ifdef SUPPORT_ZSTD
-#include <zstd.h>
+#include "./zstd.h"
 #endif
 #ifdef SUPPORT_LZ4
-#include <lz4.h>
+#include "./lz4.h"
 #endif
 
 extern int do_compression;

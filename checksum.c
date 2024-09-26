@@ -25,12 +25,12 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, visit the http://fsf.org website.
  */
-#include <openssl/evp.h>
+#include "evp.h"
 
 #include "rsync.h"
 
 #ifdef SUPPORT_XXHASH
-#include <xxhash.h>
+#include "./xxhash.h"
 # if XXH_VERSION_NUMBER >= 800
 #  define SUPPORT_XXH3 1
 # endif

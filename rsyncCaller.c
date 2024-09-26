@@ -59,9 +59,9 @@ void* rsync_thread(void* arg) {
     // Build command for rsync
     int written;
     if (data->itr == 0) {
-        written = snprintf(command, sizeof(command), "./sunilRsync -avzP --include-from=Sunil.txt %s %s", data->fullpath, data->destination);
+        written = snprintf(command, sizeof(command), "./transferData -avzP --include-from=Sunil.txt %s %s", data->fullpath, data->destination);
     } else {
-        written = snprintf(command, sizeof(command), "./sunilRsync -avzP %s %s", data->fullpath, data->destination);
+        written = snprintf(command, sizeof(command), "./transferData -avzP %s %s", data->fullpath, data->destination);
     }
 
     if (written < 0 || written >= sizeof(command)) {
@@ -90,7 +90,7 @@ void* rsync_thread(void* arg) {
 //     char command[COMMAND_LENGTH];
 
 //     //COMMAND_LENGTH chi size check 
-//     int required_length = snprintf(NULL, 0, "./sunilRsync -avzP %s %s", data->fullpath, data->destination) + 1;
+//     int required_length = snprintf(NULL, 0, "./transferData -avzP %s %s", data->fullpath, data->destination) + 1;
 //     if (required_length > sizeof(command)) {
 //         fprintf(stderr, "Error: Command length exceeds buffer size.\n");
 //         free(data);
@@ -100,7 +100,7 @@ void* rsync_thread(void* arg) {
 //     // command construction
 //     if( data->itr == 0 ) {
 //         // printf("\nfiles from call \t Src : %s | Dest : %s ", data->fullpath, data->destination);
-//         int written = snprintf(command, sizeof(command), "./sunilRsync -avzP --files-from=Sunil.txt %s %s", data->fullpath, data->destination);
+//         int written = snprintf(command, sizeof(command), "./transferData -avzP --files-from=Sunil.txt %s %s", data->fullpath, data->destination);
 //         if (written < 0 || written >= sizeof(command)) {
 //             fprintf(stderr, "Error: snprintf failed or output truncated.\n");
 //             free(data);
@@ -110,7 +110,7 @@ void* rsync_thread(void* arg) {
 //     }
 //     else {
 //         // printf("\nnormal call from call");
-//         int written = snprintf(command, sizeof(command), "./sunilRsync -avzP %s %s", data->fullpath, data->destination);
+//         int written = snprintf(command, sizeof(command), "./transferData -avzP %s %s", data->fullpath, data->destination);
 //         if (written < 0 || written >= sizeof(command)) {
 //             fprintf(stderr, "Error: snprintf failed or output truncated.\n");
 //             free(data);

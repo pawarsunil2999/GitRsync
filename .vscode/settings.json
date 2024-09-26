@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "zlib.h": "c",
+        "zstd.h": "c"
+    }
+}

@@ -62,3 +62,4 @@ source/
 destination/
 14_aug_2024.c
 *.csv
+*.out
